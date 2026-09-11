@@ -1,22 +1,17 @@
 package com.lithikha.rate_limiter;
 
+import java.util.Collections;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.Collections;
 
 @Service
 public class RateLimiterService {
 
     private final StringRedisTemplate redisTemplate;
+    private final RateLimiterProperties properties;
 
-    private static final int MAX_REQUESTS = 10;
-    private static final Duration WINDOW = Duration.ofSeconds(60);
-
-    // Lua script makes INCR + EXPIRE atomic — avoids race conditions
-    // where two requests both read the count before either sets expiry
     private static final String SCRIPT =
         "local current = redis.call('INCR', KEYS[1]) " +
         "if tonumber(current) == 1 then " +
@@ -24,8 +19,9 @@ public class RateLimiterService {
         "end " +
         "return current";
 
-    public RateLimiterService(StringRedisTemplate redisTemplate) {
+    public RateLimiterService(StringRedisTemplate redisTemplate, RateLimiterProperties properties) {
         this.redisTemplate = redisTemplate;
+        this.properties = properties;
     }
 
     public boolean isAllowed(String clientKey) {
@@ -33,8 +29,8 @@ public class RateLimiterService {
         Long count = redisTemplate.execute(
             redisScript,
             Collections.singletonList("rate_limit:" + clientKey),
-            String.valueOf(WINDOW.getSeconds())
+            String.valueOf(properties.getWindowSeconds())
         );
-        return count != null && count <= MAX_REQUESTS;
+        return count != null && count <= properties.getMaxRequests();
     }
 }

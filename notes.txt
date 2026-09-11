@@ -4,3 +4,17 @@ container_name - gives predictable name instead of random docker generated one.
 restart: unless-stopped - redis survives a docker daemon restart without manual re-run
 
 docker compose up -d : -d(runs in background); 1st run pulls the img.
+
+to run: .\mvnw.cmd spring-boot:run
+in docker: 
+# 1. Fire exactly 12 requests immediately
+for ($i=1; $i -le 12; $i++) {
+  $status = curl.exe -s -o NUL -w "%{http_code}" http://localhost:8080/api/ping
+  Write-Output "$i : $status"
+}
+
+# 2. IMMEDIATELY after (within a second or two), check Redis
+docker exec -it rate-limiter-redis redis-cli
+
+GET rate_limit:0:0:0:0:0:0:0:1
+TTL rate_limit:0:0:0:0:0:0:0:1
