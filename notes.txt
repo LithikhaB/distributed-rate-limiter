@@ -1,0 +1,6 @@
+1. docker-compose.yml
+redis:7-alpine - small image, fast to pull, stable version
+container_name - gives predictable name instead of random docker generated one.
+restart: unless-stopped - redis survives a docker daemon restart without manual re-run
+
+docker compose up -d : -d(runs in background); 1st run pulls the img.
