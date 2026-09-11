@@ -8,5 +8,5 @@ server:
   port: 8080
 
 rate-limiter:
-  max-requests: 3
+  max-requests: 15
   window-seconds: 60
