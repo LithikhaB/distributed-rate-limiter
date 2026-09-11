@@ -3,7 +3,7 @@ import requests
 from collections import Counter
 
 URL = "http://127.0.0.1:8080/api/ping"
-TOTAL_REQUESTS = 50
+TOTAL_REQUESTS = 100
 CONCURRENCY = 20
 
 def fire():
